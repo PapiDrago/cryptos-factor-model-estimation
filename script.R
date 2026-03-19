@@ -84,3 +84,8 @@ mean(log_crypto_dataset$ETH)
 log_ret_crypto_dataset<-as.data.frame(diff(as.matrix(log_crypto_dataset)))
 summary(log_ret_crypto_dataset)
 hist(log_ret_crypto_dataset$ETH)
+
+standardized_returns <- scale(log_ret_crypto_dataset) # Demean and standardize
+standardized_returns <- as.data.frame(standardized_returns)
+summary(standardized_returns)
+# var(standardized_returns)
