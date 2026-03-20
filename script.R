@@ -5,16 +5,16 @@ rm(list=ls())
 # install.packages("ggplot2",dependencies=TRUE)
 # install.packages("readxl",dependencies=TRUE)
 # install.packages("corrplot",dependencies=TRUE)
-install.packages("dfms", depedencies=TRUE) # To estimate number of factor in a static factor model under
+#install.packages("dfms", depedencies=TRUE) # To estimate number of factor in a static factor model under
                    # information criteria. (Static factor model are a subset of 
                    # dynamical factor model). It handles dataset with missing data
-install.packages("xts", dependencies=TRUE) # General package to study time-series
+#install.packages("xts", dependencies=TRUE) # General package to study time-series
                                            # dataset
-install.packages("HDRFA", dependencies=TRUE) # it contains functions to estimate k
+#install.packages("HDRFA", dependencies=TRUE) # it contains functions to estimate k
                                              # with PCA and more, but also
                                              # techinique to handle data in which
                                              # outliers are frequent (robust PCA)
-install.packages("magrittr", dependencies=TRUE)
+#install.packages("magrittr", dependencies=TRUE)
 # Call libraries
 #library(ggplot2)
 library(readxl)
@@ -116,19 +116,25 @@ ic<-ICr(standardized_returns) # leggi la documentazione per capire effettivament
                               # In general all of them overestimate
 plot(ic) # This plots loss functions
 
-er<-PCA_FN(standardized_returns, 12) # eigenvalue ratio estimation of k differs from ic
+er<-PCA_FN(standardized_returns, 12) # eigenvalue ratio estimation of k differs from ic.
+# The reason may be related to the fact that T>>N, I may try to work on it by considering more cryptos and less time
+
 # is u_{i,t} correlated to u_{j,t}? Is cross-sectional correlation present? I think yes but how to test
 
 estimated_terms<-PCA(as.matrix(standardized_returns), 4, constraint = "L") #hdrfa
 #Estimating the loadings, as the eigenvectors associated to the k largest eigs of cov(x)
 # and it estimates the common factors
 F_hat = estimated_terms$Fhat
-L_hat = estimated_terms$Lhat
+L_hat = estimated_terms$Lhat # phi_hat
 
 #Estimate then common component and then make difference
-estimated_common_components<-F_hat%*%t(L_hat)
+fitted_values<-F_hat%*%t(L_hat)
+fitted_values<-as.data.frame(fitted_values)
 
-errors = standardized_returns - estimated_common_components
+
+errors<-standardized_returns - fitted_values
+squared_errors = (as.matrix(errors))^2
+str(squared_errors)
+V_k <- mean(squared_errors)
 # Cerca magari sul paper un metodo affidabile per valutare la goodness of fit di un factor model
 # poi prova a usare pure un metodo autoregressivo per predire l'errore idiosincratico
-summary((errors))
