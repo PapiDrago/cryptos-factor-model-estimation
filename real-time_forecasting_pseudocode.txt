@@ -6,20 +6,28 @@ D_train = 0.75*D /* D_train = {y1, y2, ..., yT1}, D_test = {yT1+1, yT1+2, ..., y
 T = length(D)
 T1 = length(D_train)
 
+k_max = 4 //Computed by estimating K considering all the dataset
+
 For i = T1 to T-h
 	D_train_i = D[1:i, :]
+	training_mean = mean(D_train_i)
+	training_SD = sqrt(var(D_train_i))
 	D_train_i = standardize(D_train,i)
-	D_test_i = standardize(D[i+1:T, :]))
+	D_test_i = D[i+1:T, :])
+	D_test_i = (D_test_i - training_mean)/training_SD
 
-	n_factors = ICr(D_train_i)
+	n_factors = ICr(D_train_i, k_max)
 	F_hat = PCA(D_train_i, n_factors)
 
 	OLS_training_set = {(yt+h, F_hat[t])} with t = 1 to i-h
 	OLS_model = fit(OLS_training_set)
 
-	For j = i+1 to i+h
+	/*For j = i+1 to i+h
 		actuals.append(yj)
 		forecasts.append(predict(OLS_model(F_hat[j-h])))
-	End
+	End*/ /* In the paper they just forecast yi+h with F_hat[i] */
+
+	actuals.append(yi+h)
+	forecasts.append(predict(OLS_model(F_hat[i])))
 End
 MSE = 1/length(forecasts) * (actuals - forecasts)^2
