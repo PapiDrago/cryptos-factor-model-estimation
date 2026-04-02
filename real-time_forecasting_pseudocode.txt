@@ -1,0 +1,25 @@
+input: - D = {y1, y2, ..., yT} /* where T is the number of observations */
+- h // forecasting horizon
+
+D_train = 0.75*D /* D_train = {y1, y2, ..., yT1}, D_test = {yT1+1, yT1+2, ..., yT}
+
+T = length(D)
+T1 = length(D_train)
+
+For i = T1 to T-h
+	D_train_i = D[1:i, :]
+	D_train_i = standardize(D_train,i)
+	D_test_i = standardize(D[i+1:T, :]))
+
+	n_factors = ICr(D_train_i)
+	F_hat = PCA(D_train_i, n_factors)
+
+	OLS_training_set = {(yt+h, F_hat[t])} with t = 1 to i-h
+	OLS_model = fit(OLS_training_set)
+
+	For j = i+1 to i+h
+		actuals.append(yj)
+		forecasts.append(predict(OLS_model(F_hat[j-h])))
+	End
+End
+MSE = 1/length(forecasts) * (actuals - forecasts)^2
