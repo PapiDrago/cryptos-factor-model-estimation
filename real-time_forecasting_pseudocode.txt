@@ -6,7 +6,11 @@ D_train = 0.75*D /* D_train = {y1, y2, ..., yT1}, D_test = {yT1+1, yT1+2, ..., y
 T = length(D)
 T1 = length(D_train)
 
+actuals = []
+forecasts = []
+
 k_max = 4 //Computed by estimating K considering all the dataset
+p_max = 7
 
 For i = T1 to T-h
 	D_train_i = D[1:i, :]
@@ -19,15 +23,45 @@ For i = T1 to T-h
 	n_factors = ICr(D_train_i, k_max)
 	F_hat = PCA(D_train_i, n_factors)
 
-	OLS_training_set = {(yt+h, F_hat[t])} with t = 1 to i-h
-	OLS_model = fit(OLS_training_set)
+	OLS_training_set = {(yt+h, F_hat[t])} with t = 1 to i-h //This has to be done for each cross-sectional unit
+	OLS_model = OLS_fit(OLS_training_set)						//As above
 
-	/*For j = i+1 to i+h
+
+
+	/* For j = i+1 to i+h
 		actuals.append(yj)
 		forecasts.append(predict(OLS_model(F_hat[j-h])))
 	End*/ /* In the paper they just forecast yi+h with F_hat[i] */
 
 	actuals.append(yi+h)
 	forecasts.append(predict(OLS_model(F_hat[i])))
+
+	for p = 0 to p_max
+		AR_training_set = {(yt+h, {yt+h-l} with l = 1 to p)} with t = 1 to i-h // if p = 0 then I have just beta_0
+		AR_model = OLS_fit(AR_training_set)
+		forecast_AR[end+1, p] = predict(AR_model({yt+h-l} with l = 1 to p)) // if p = 0 then I have just beta_0, we want to
+																			// forecast yi+h
+
+
+
 End
-MSE = 1/length(forecasts) * (actuals - forecasts)^2
+MSE_factor_model = 1/length(forecasts) * (actuals - forecasts)^2
+
+MSE_AR_model = 1/length(forecasta) * (actuals - forecast_AR[, :])
+
+bic_min = infinity
+
+j = 0
+
+for j to p_max
+	
+	bic = (p+2)*ln(length(forecasts)) + 2*ln(MSE_AR_model[j])
+	if (bic < bic_min) {
+
+		bic_min = bic
+	}
+End
+
+MSE_reference = MSE_AR_model[j]
+relative_factor_model_MSE = MSE_factor_model / MSE_reference
+
