@@ -36,32 +36,32 @@ For i = T1 to T-h
 	actuals.append(yi+h)
 	forecasts.append(predict(OLS_model(F_hat[i])))
 
+	j = p_max + 1
+	bic_min = infinity
 	for p = 0 to p_max
 		AR_training_set = {(yt+h, {yt+h-l} with l = 1 to p)} with t = 1 to i-h // if p = 0 then I have just beta_0
 		AR_model = OLS_fit(AR_training_set)
 		forecast_AR[end+1, p] = predict(AR_model({yt+h-l} with l = 1 to p)) // if p = 0 then I have just beta_0, we want to
 																			// forecast yi+h
-
-
+		for l = 1 to i
+			training_MSE_AR_model = training_MSE_AR_model + (yl+p+1 - predict(AR_model({yl-m} for m = 1 to p)))^2
+		End
+		training_MSE_AR_model = 1/i * training_MSE_AR_model
+		bic = (p+2)*ln(i) + i*ln(training_MSE_AR_model)
+		if (bic < bic_min) {
+			bic_min = bic
+			j = p
+		}
+	End
+	forecasts_AR.append(predict(AR_model({yt+h-l} with l = 1 to j)))
 
 End
 MSE_factor_model = 1/length(forecasts) * (actuals - forecasts)^2
+MSE_AR_model = 1/length(forecasts) * (actuals -	forecasts_AR)
 
-MSE_AR_model = 1/length(forecasta) * (actuals - forecast_AR[, :])
 
-bic_min = infinity
 
-j = 0
 
-for j to p_max
-	
-	bic = (p+2)*ln(length(forecasts)) + 2*ln(MSE_AR_model[j])
-	if (bic < bic_min) {
-
-		bic_min = bic
-	}
-End
-
-MSE_reference = MSE_AR_model[j]
+MSE_reference = MSE_AR_model
 relative_factor_model_MSE = MSE_factor_model / MSE_reference
 
