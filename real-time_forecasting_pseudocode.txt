@@ -41,8 +41,7 @@ For i = T1 to T-h
 	for p = 0 to p_max //When computing the training set for OLS optimizer, the entries shouldn't be normalized.
 		AR_training_set = {(yt+h, {yt+h-l} with l = 1 to p)} with t = 1 to i-h // if p = 0 then I have just beta_0
 		AR_model = OLS_fit(AR_training_set)
-		//forecast_AR[end+1, p] = predict(AR_model({yt+h-l} with l = 1 to p)) // if p = 0 then I have just beta_0, we want to
-																			// forecast yi+h
+		//forecast_AR[end+1, p] = predict(AR_model({yt+h-l} with l = 1 to p)) // if p = 0 then I have just beta_0; we want to forecast yi+h
 		for l = p_max to i
 			training_MSE_AR_model = training_MSE_AR_model + (yl+p+1 - predict(AR_model({yl+p+1-m} for m = 1 to p)))^2
 		End

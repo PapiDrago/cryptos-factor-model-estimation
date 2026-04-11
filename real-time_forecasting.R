@@ -5,6 +5,9 @@
 
 run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max = 5) {
   
+  library(dfms)  # For ICr
+  library(HDRFA) # For PCA
+
   T_total <- nrow(data_log_returns)
   N_assets <- ncol(data_log_returns)
   T1 <- floor(0.75 * T_total)
@@ -18,6 +21,8 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
   actuals <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   forecasts_factor <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   forecasts_ar <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
+  p_history <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
+
   row_idx <- 1
 
   mse_f <- numeric(N_assets)
@@ -44,16 +49,19 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
     estimated_factor_terms <- PCA(as.matrix(D_std_t), min(ic$r.star), constraint = "L") # We finally estimate the common factors.
 
     F_hat <- estimated_factor_terms$Fhat
-    
+    #F_hat <- as.data.frame(F_hat)
+
+
     pred_f <- numeric(N_assets)
     best_pred_ar <- numeric(N_assets)
     
     for (i in 1:N_assets) {
       # We use OLS estimator to fit a linear model in order to forecast y_t+h
       y_raw <- D_train_t[(1 + h):t, i]
-      X_factors <- F_hat[1:(t - h), , drop = FALSE] # "drop = FALSE" ensures that each row is treated as a data frame object instead of 'vector'
-    
-      model_factor <- lm(y_raw ~ X_factors) # A typical model has the form response ~ terms
+      X_factors <- as.data.frame(F_hat[1:(t - h), , drop = FALSE]) # "drop = FALSE" ensures that each row is treated as a data frame object instead of 'vector'
+      #browser()
+      model_factor <- lm(y_raw ~., data = X_factors) # A typical model has the form response ~ terms
+      # y_raw has to be a numeric vector
     
       latest_F <- as.data.frame(matrix(F_hat[t, ], nrow = 1)) # matrix creates a matrix from the given set of values
       colnames(latest_F) <- colnames(X_factors)
@@ -77,12 +85,12 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
           # It is as if the headers of the p+1 columns were: lag_0,lag1, ..., lag_p-1, lag_p
           # For instance, considering AR(p), y_t+h+p will be regressed on the t-th row of lags_matrix considering cols from the second, corresponding to lag_1, to the last one
           y_shifted <- D_train_t[(p + h):t, i]
-          x_shifted <- lags_matrix[1:(nrow(lags_matrix) - h + 1), 2:(p + 1), drop = FALSE]
+          x_shifted <- as.data.frame(lags_matrix[1:(nrow(lags_matrix) - h + 1), 2:(p + 1), drop = FALSE])
           # Please note that the last y to be predicted is y_t, which is regressed on y_t-h, y_t-h-1, ..., y_t-h-p+1
           # For this reason the last row to be included in x_shifted is the t-h+1^th because from the second column we
           # find the regressors required
 
-          ar_mod <- lm(y_shifted ~ x_shifted)
+          ar_mod <- lm(y_shifted ~., data = x_shifted)
         }
       
         # Calculate BIC on the slice [p_max to t-h]
@@ -116,13 +124,15 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
       actuals[row_idx, i] <- data_log_returns[t + h, i]
       forecasts_factor[row_idx, i] <- pred_f[i]
       forecasts_ar[row_idx, i] <- best_pred_ar[i]
+      p_history[row_idx, i] <- best_p
 
     }
     row_idx <- row_idx + 1
   }
   
   # Finally we compare the factor model with the AR model using relative MSE
-  fmse_f <- colMeans((actuals - forecasts_factor)^2)
+  #browser()
+  mse_f <- colMeans((actuals - forecasts_factor)^2)
   mse_ar <- colMeans((actuals - forecasts_ar)^2)
   rel_mse <- mse_f / mse_ar
   
@@ -131,10 +141,12 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
     Factor_MSE = mse_f,
     AR_MSE = mse_ar,
     Actuals = actuals,
-    Forecasts_Factor = forecasts_factor
+    Forecasts_Factor = forecasts_factor,
+    
+    AR_parameter_history = p_history
   ))
 }
 
 # Example usage:
-# results <- run_stock_watson_forecast(my_crypto_data)
+# results <- run_stock_watson_forecast(my_financial_data)
 # print(results$Relative_MSE)
