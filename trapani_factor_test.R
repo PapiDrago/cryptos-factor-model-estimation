@@ -1,4 +1,4 @@
-trapani_sequential_test <- function(estimated_eigenvalues, N, T_total, u_vec, weights_vec, alpha = 0.05, R = 400) {
+trapani_factor_test <- function(estimated_eigenvalues, N, T_total, u_vec, weights_vec, alpha = 0.05, R = 400) {
   # N = cross-sectional sample size, T_total = time sample size
   # estimated_eigenvalues = vector of eigenvalues
   # weights_vec contain the values of F(u)
@@ -19,7 +19,7 @@ trapani_sequential_test <- function(estimated_eigenvalues, N, T_total, u_vec, we
   
   if (N <= T_total) {
     avg_eigs = mean(eigenvalues)
-    phi <- exp(N^(-delta) * (estimated_eigenvalues / avg_eigs)) [cite: 187]
+    phi <- exp(N^(-delta) * (estimated_eigenvalues / avg_eigs))
   }
   
   estimated_k <- 0
@@ -33,7 +33,7 @@ trapani_sequential_test <- function(estimated_eigenvalues, N, T_total, u_vec, we
     } else {
       phi_p = phi[p+1]
     }
-    # Generate artificial sample xi ~ i.i.d. N(0,1) (Step 1) [cite: 203]
+    # Generate artificial sample xi ~ i.i.d. N(0,1) (Step 1)
     xi <- rnorm(R, mean = 0, sd = 1)
     
     theta_squared_values <- sapply(u_vec, function(u) {
@@ -54,7 +54,7 @@ trapani_sequential_test <- function(estimated_eigenvalues, N, T_total, u_vec, we
       # REJECT H0: The eigenvalue does not diverge
       break 
     } else {
-      # FAIL TO REJECT H0: The eigenvalue diverges (a valid factor) [cite: 263]
+      # FAIL TO REJECT H0: The eigenvalue diverges (a valid factor)
       estimated_k <- p+1
     }
   }
