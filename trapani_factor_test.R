@@ -2,7 +2,6 @@ trapani_factor_test <- function(estimated_eigenvalues, N, T_total, u_vec, weight
   # N = cross-sectional sample size, T_total = time sample size
   # estimated_eigenvalues = vector of eigenvalues
   # weights_vec contain the values of F(u)
-  
   if (length(u_vec) != length(weights_vec)) {
     return(-1)
   }

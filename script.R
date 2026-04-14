@@ -8,7 +8,7 @@ setwd("/Users/papidrago/Desktop/financial_data_science/cryptos-factor-model-esti
 source("real-time_forecasting.R")
 #source("real-time_forecasting2.R")
 
-# Install packages 
+# Install packages ì
 # install.packages("ggplot2",dependencies=TRUE)
 # install.packages("readxl",dependencies=TRUE)
 # install.packages("corrplot",dependencies=TRUE)
@@ -18,18 +18,19 @@ source("real-time_forecasting.R")
 #install.packages("xts", dependencies=TRUE) # General package to study time-series
 # dataset
 #install.packages("HDRFA", dependencies=TRUE) # it contains functions to estimate k
-# with PCA and more, but also
-# techinique to handle data in which
-# outliers are frequent (robust PCA)
-#install.packages("magrittr", dependencies=TRUE)
+# with PCA and more, but also techinique to handle data in which outliers are frequent (robust PCA)
+#install.packages("crypto2")
+#install.packages("readr",dependencies=TRUE)
+
 # Call libraries
-#library(ggplot2)
-library(readxl)
-library(dfms)
-#library(corrplot)
-library(xts)
-library(HDRFA)
-library(magrittr)
+library(readxl) # to use read_excel
+library(dfms) # For ICr
+library(HDRFA) # For PCA
+library(crypto2) #To use crypto_list, crypto_history
+library(dplyr) #To use %>%
+library(tidyr) #To use pivot_wider
+library(readr) # to use read_csv, write_csb ...
+library(zoo) # ti use na.locf
 
 # Import dataset
 crypto_dataset<-read_excel("dataset1_cryptos.xlsx")
@@ -110,16 +111,6 @@ results <- run_stock_watson_forecast(log_ret_crypto_dataset)
 print(results$Relative_MSE)
 
 cor(log_crypto_dataset)
-
-
-# Install and load
-#install.packages("crypto2")
-library(crypto2)
-library(dplyr)
-library(tidyr)
-install.packages("readr",dependencies=TRUE)
-library(readr) # for fast CSV writing
-library(zoo)
 
 # 1. Get a list of all coins available
 all_coins <- crypto_list(only_active = TRUE)
@@ -227,166 +218,3 @@ results_50 <- run_stock_watson_forecast(log_ret_final_prices)
 print(results_50$Relative_MSE)
 
 cor(log_final_prices)
-
-#-------------------------
-# 1. Get a list of all coins available
-all_coins <- crypto_list(only_active = TRUE)
-
-top_809_coins <- all_coins[1:809, ]
-
-# 3. Download daily historical OHLC data
-# Note: This may take a few minutes depending on the number of coins
-raw_data <- crypto_history(coin_list = top_809_coins, 
-start_date = "2016-01-01", 
-end_date = "2019-09-30")
-
-write_csv(raw_data, "crypto_raw_historical_809.csv")
-
-raw_crypto_data_809<-read_csv("crypto_raw_historical_809.csv")
-colSums(is.na(raw_crypto_data_809))
-
-# 2. Transform the data
-simplified_data <- raw_crypto_data_809 %>%
-  # Keep only the columns we need
-  select(time_open, symbol, close) %>%
-  # Rename 'time_open' to 'Date' as requested
-  rename(Date = time_open) %>%
-  # Ensure we don't have duplicates for the same Date/Symbol
-  distinct(Date, symbol, .keep_all = TRUE) %>%
-  # Pivot: Move symbols from rows to columns
-  # This creates: Date | BTC | ETH | XRP ...
-  pivot_wider(names_from = symbol, values_from = close) %>%
-  # Sort by Date chronologically
-  arrange(Date)
-
-# 3. Save to a new, simplified CSV
-write_csv(simplified_data, "crypto_simplified_prices_809.csv")
-colSums(is.na(simplified_data))
-
-
-# Check the first few rows to confirm it looks correct
-head(simplified_data)
-
-
-# Clean the data
-market_cap_floor <- 100000000  # $100 Million 
-missing_threshold <- 0.25      # 25% Max Missing Data 
-stablecoins <- c("USDT", "USDC", "TUSD", "PAX", "DAI", "USDS", "GUSD")
-
-# 1. Filter out stablecoins
-filtered_data <- raw_crypto_data_809 %>%
-  filter(!(symbol %in% stablecoins))
-
-
-# 2. Filter by Market Cap
-# Note: In the paper, assets were included if they met the threshold [cite: 151]
-# We'll keep coins that reached the $100M threshold at some point in your period
-valid_symbols <- filtered_data %>%
-  group_by(symbol) %>%
-  summarize(max_cap = max(market_cap, na.rm = TRUE)) %>%
-  filter(max_cap >= market_cap_floor) %>%
-  pull(symbol)
-
-
-filtered_data <- filtered_data %>%
-  filter(symbol %in% valid_symbols)
-str(filtered_data)
-# 3. Pivot to Wide Format and check Missing Data (Density)
-wide_prices <- filtered_data %>%
-  select(time_open, symbol, close) %>%
-  rename(Date = time_open) %>%
-  # Ensure we don't have duplicates for the same Date/Symbol
-  distinct(Date, symbol, .keep_all = TRUE) %>%
-  pivot_wider(names_from = symbol, values_from = close) %>%
-  arrange(Date)
-
-# 4. Remove coins with more than 25% NAs 
-n_obs <- nrow(wide_prices)
-keep_cols <- colSums(is.na(wide_prices)) / n_obs <= missing_threshold
-final_prices <- wide_prices[, keep_cols]
-colSums(is.na(log_final_prices))
-
-
-final_prices<-final_prices[-1]
-
-final_prices <- na.locf(final_prices, na.rm = FALSE)
-colSums(is.na(final_prices))
-
-
-log_final_prices<-log(final_prices)
-summary(log_final_prices)
-hist(log_final_prices$ETH)
-
-log_ret_final_prices<-as.data.frame(diff(as.matrix(log_final_prices)))
-summary(log_ret_final_prices)
-hist(log_ret_final_prices$ETH)
-
-colSums(is.na(log_final_prices))
-
-colSums(is.na(log_ret_final_prices))
-
-results_809 <- run_stock_watson_forecast(log_ret_final_prices)
-print(results_50$Relative_MSE)
-
-cor(log_final_prices)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Test per capire se queste percentuali delle 5 time series sono stazionarie?
-
-# var(standardized_returns) 
-#det(cov(standardized_returns))
-# Determine the number of factors
-ic<-ICr(standardized_returns, 3) # leggi la documentazione per capire effettivamente quali cruteri sono stati usati
-                              # IC3 always overrestimate the number of common factors
-                              # In general all of them overestimate
-plot(ic) # This plots loss functions
-limit <- floor(8*(min(5, T_total) / 100)^(1/4))
-#er<-PCA_FN(standardized_returns, 12) # eigenvalue ratio estimation of k differs from ic.
-# The reason may be related to the fact that T>>N, I may try to work on it by considering more cryptos and less time
-
-# is u_{i,t} correlated to u_{j,t}? Is cross-sectional correlation present? I think yes but how to test
-
-estimated_terms<-PCA(as.matrix(standardized_returns), 4, constraint = "L") #hdrfa
-#Estimating the loadings, as the eigenvectors associated to the k largest eigs of cov(x)
-# and it estimates the common factors
-F_hat <- estimated_terms$Fhat
-F_hat <- as.data.frame(F_hat)
-X_factors <- F_hat[1:(100 - 1), , drop = FALSE]
-
-L_hat = estimated_terms$Lhat # phi_hat
-
-
-
-#Estimate then common component and then make difference
-fitted_values<-F_hat%*%t(L_hat)
-fitted_values<-as.data.frame(fitted_values)
-
-
-errors<-standardized_returns - fitted_values
-squared_errors = (as.matrix(errors))^2
-str(squared_errors)
-V_k <- mean(squared_errors)
-# Cerca magari sul paper un metodo affidabile per valutare la goodness of fit di un factor model
