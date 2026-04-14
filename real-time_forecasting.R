@@ -7,7 +7,8 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
   
   library(dfms)  # For ICr
   library(HDRFA) # For PCA
-
+  source("trapani_factor_test.R")
+  
   T_total <- nrow(data_log_returns)
   N_assets <- ncol(data_log_returns)
   T1 <- floor(0.75 * T_total)
@@ -22,12 +23,16 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
   forecasts_factor <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   forecasts_ar <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   p_history <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
-
+  k_trapani_history <- rep(NA, n_forecasts) 
+  
   row_idx <- 1
 
   mse_f <- numeric(N_assets)
   mse_ar <- numeric(N_assets)
   rel_mse <- numeric(N_assets)
+  
+  u_vec <- c(sqrt(2), -sqrt(2))
+  weights_vec <- c(0.5, 0.5)
   
   # Real-time forecasting loop:
   # for each t we compute a forecast assuming not to have knowledge about the future (data)
@@ -54,6 +59,8 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
 
     pred_f <- numeric(N_assets)
     best_pred_ar <- numeric(N_assets)
+    
+    k_trapani_history[row_idx] <- trapani_factor_test(ic$eigenvalues, N_assets, t, u_vec, weights_vec, alpha = 0.05)
     
     for (i in 1:N_assets) {
       # We use OLS estimator to fit a linear model in order to forecast y_t+h
@@ -142,8 +149,8 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
     AR_MSE = mse_ar,
     Actuals = actuals,
     Forecasts_Factor = forecasts_factor,
-    
-    AR_parameter_history = p_history
+    AR_parameter_history = p_history,
+    Trapani_factor_number_history = k_trapani_history
   ))
 }
 
