@@ -6,6 +6,7 @@ setwd("/Users/papidrago/Desktop/financial_data_science/cryptos-factor-model-esti
 
 # Loading the realt-time forecasting function
 source("real-time_forecasting.R")
+#source("real-time_forecasting2.R")
 
 # Install packages 
 # install.packages("ggplot2",dependencies=TRUE)
@@ -118,6 +119,7 @@ library(dplyr)
 library(tidyr)
 install.packages("readr",dependencies=TRUE)
 library(readr) # for fast CSV writing
+library(zoo)
 
 # 1. Get a list of all coins available
 all_coins <- crypto_list(only_active = TRUE)
@@ -159,6 +161,174 @@ colSums(is.na(simplified_data))
 head(simplified_data)
 
 
+# Clean the data
+market_cap_floor <- 100000000  # $100 Million 
+missing_threshold <- 0.25      # 25% Max Missing Data 
+stablecoins <- c("USDT", "USDC", "TUSD", "PAX", "DAI", "USDS", "GUSD")
+
+# 1. Filter out stablecoins
+filtered_data <- raw_crypto_data_100 %>%
+  filter(!(symbol %in% stablecoins))
+
+
+# 2. Filter by Market Cap
+# Note: In the paper, assets were included if they met the threshold [cite: 151]
+# We'll keep coins that reached the $100M threshold at some point in your period
+valid_symbols <- filtered_data %>%
+  group_by(symbol) %>%
+  summarize(max_cap = max(market_cap, na.rm = TRUE)) %>%
+  filter(max_cap >= market_cap_floor) %>%
+  pull(symbol)
+
+
+filtered_data <- filtered_data %>%
+  filter(symbol %in% valid_symbols)
+str(filtered_data)
+# 3. Pivot to Wide Format and check Missing Data (Density)
+wide_prices <- filtered_data %>%
+  select(time_open, symbol, close) %>%
+  rename(Date = time_open) %>%
+  # Ensure we don't have duplicates for the same Date/Symbol
+  distinct(Date, symbol, .keep_all = TRUE) %>%
+  pivot_wider(names_from = symbol, values_from = close) %>%
+  arrange(Date)
+
+# 4. Remove coins with more than 25% NAs 
+n_obs <- nrow(wide_prices)
+keep_cols <- colSums(is.na(wide_prices)) / n_obs <= missing_threshold
+final_prices <- wide_prices[, keep_cols]
+#colSums(is.na(log_final_prices))
+
+write_csv(final_prices, "crypto_simplified_final_prices_100.csv")
+final_prices<-read_csv("crypto_simplified_final_prices_100.csv")
+
+
+final_prices<-final_prices[-1]
+
+final_prices <- na.locf(final_prices, na.rm = FALSE)
+colSums(is.na(final_prices))
+
+
+log_final_prices<-log(final_prices)
+summary(log_final_prices)
+hist(log_final_prices$ETH)
+
+log_ret_final_prices<-as.data.frame(diff(as.matrix(log_final_prices)))
+summary(log_ret_final_prices)
+hist(log_ret_final_prices$ETH)
+
+colSums(is.na(log_final_prices))
+#860 day of BCN is missing
+
+colSums(is.na(log_ret_final_prices))
+#859 and 860 day are missing
+
+results_50 <- run_stock_watson_forecast(log_ret_final_prices)
+print(results_50$Relative_MSE)
+
+cor(log_final_prices)
+
+#-------------------------
+# 1. Get a list of all coins available
+all_coins <- crypto_list(only_active = TRUE)
+
+top_809_coins <- all_coins[1:809, ]
+
+# 3. Download daily historical OHLC data
+# Note: This may take a few minutes depending on the number of coins
+raw_data <- crypto_history(coin_list = top_809_coins, 
+start_date = "2016-01-01", 
+end_date = "2019-09-30")
+
+write_csv(raw_data, "crypto_raw_historical_809.csv")
+
+raw_crypto_data_809<-read_csv("crypto_raw_historical_809.csv")
+colSums(is.na(raw_crypto_data_809))
+
+# 2. Transform the data
+simplified_data <- raw_crypto_data_809 %>%
+  # Keep only the columns we need
+  select(time_open, symbol, close) %>%
+  # Rename 'time_open' to 'Date' as requested
+  rename(Date = time_open) %>%
+  # Ensure we don't have duplicates for the same Date/Symbol
+  distinct(Date, symbol, .keep_all = TRUE) %>%
+  # Pivot: Move symbols from rows to columns
+  # This creates: Date | BTC | ETH | XRP ...
+  pivot_wider(names_from = symbol, values_from = close) %>%
+  # Sort by Date chronologically
+  arrange(Date)
+
+# 3. Save to a new, simplified CSV
+write_csv(simplified_data, "crypto_simplified_prices_809.csv")
+colSums(is.na(simplified_data))
+
+
+# Check the first few rows to confirm it looks correct
+head(simplified_data)
+
+
+# Clean the data
+market_cap_floor <- 100000000  # $100 Million 
+missing_threshold <- 0.25      # 25% Max Missing Data 
+stablecoins <- c("USDT", "USDC", "TUSD", "PAX", "DAI", "USDS", "GUSD")
+
+# 1. Filter out stablecoins
+filtered_data <- raw_crypto_data_809 %>%
+  filter(!(symbol %in% stablecoins))
+
+
+# 2. Filter by Market Cap
+# Note: In the paper, assets were included if they met the threshold [cite: 151]
+# We'll keep coins that reached the $100M threshold at some point in your period
+valid_symbols <- filtered_data %>%
+  group_by(symbol) %>%
+  summarize(max_cap = max(market_cap, na.rm = TRUE)) %>%
+  filter(max_cap >= market_cap_floor) %>%
+  pull(symbol)
+
+
+filtered_data <- filtered_data %>%
+  filter(symbol %in% valid_symbols)
+str(filtered_data)
+# 3. Pivot to Wide Format and check Missing Data (Density)
+wide_prices <- filtered_data %>%
+  select(time_open, symbol, close) %>%
+  rename(Date = time_open) %>%
+  # Ensure we don't have duplicates for the same Date/Symbol
+  distinct(Date, symbol, .keep_all = TRUE) %>%
+  pivot_wider(names_from = symbol, values_from = close) %>%
+  arrange(Date)
+
+# 4. Remove coins with more than 25% NAs 
+n_obs <- nrow(wide_prices)
+keep_cols <- colSums(is.na(wide_prices)) / n_obs <= missing_threshold
+final_prices <- wide_prices[, keep_cols]
+colSums(is.na(log_final_prices))
+
+
+final_prices<-final_prices[-1]
+
+final_prices <- na.locf(final_prices, na.rm = FALSE)
+colSums(is.na(final_prices))
+
+
+log_final_prices<-log(final_prices)
+summary(log_final_prices)
+hist(log_final_prices$ETH)
+
+log_ret_final_prices<-as.data.frame(diff(as.matrix(log_final_prices)))
+summary(log_ret_final_prices)
+hist(log_ret_final_prices$ETH)
+
+colSums(is.na(log_final_prices))
+
+colSums(is.na(log_ret_final_prices))
+
+results_809 <- run_stock_watson_forecast(log_ret_final_prices)
+print(results_50$Relative_MSE)
+
+cor(log_final_prices)
 
 
 
@@ -173,25 +343,16 @@ head(simplified_data)
 
 
 
-# Let's remove random-walkness (non-stationarity)
-standardized_returns <- scale(log_ret_crypto_dataset) # Demean and standardize
-standardized_returns <- as.data.frame(standardized_returns)
-summary(standardized_returns)
-plot(standardized_returns)
 
-T_total <- nrow(standardized_returns)
-N <- ncol(standardized_returns)
 
-h <- 1  # h is the forecasting horizon
 
-# 2. Define the Initial Training Split (e.g., first 1000 observations)
-split_ratio <- 0.75
-training_size_init <- floor(T_total * split_ratio)
-# training_size_init is the number of observations (what we call typically T) in the starting training set
-test_indices <- (training_size_init + 1):(T_total - h)
-# I stop to T_total - h because eventually t 
-forecasts <- numeric(length(test_indices))
-actuals <- numeric(length(test_indices))
+
+
+
+
+
+
+
 
 # Test per capire se queste percentuali delle 5 time series sono stazionarie?
 
@@ -203,7 +364,7 @@ ic<-ICr(standardized_returns, 3) # leggi la documentazione per capire effettivam
                               # In general all of them overestimate
 plot(ic) # This plots loss functions
 limit <- floor(8*(min(5, T_total) / 100)^(1/4))
-er<-PCA_FN(standardized_returns, 12) # eigenvalue ratio estimation of k differs from ic.
+#er<-PCA_FN(standardized_returns, 12) # eigenvalue ratio estimation of k differs from ic.
 # The reason may be related to the fact that T>>N, I may try to work on it by considering more cryptos and less time
 
 # is u_{i,t} correlated to u_{j,t}? Is cross-sectional correlation present? I think yes but how to test
@@ -229,21 +390,3 @@ squared_errors = (as.matrix(errors))^2
 str(squared_errors)
 V_k <- mean(squared_errors)
 # Cerca magari sul paper un metodo affidabile per valutare la goodness of fit di un factor model
-# poi prova a usare pure un metodo autoregressivo per predire l'errore idiosincratico
-
-# Ora devi scegliere il numero di parametri da usare nel linear regression model. Non uso il lasso
-# perche' aggiungerei un bias oltre all'attuetation bias introdotto dai generated regressors.
-
-#factor_1<-F_hat[,1]
-#lag1_factor_1_correlation<-acf(factor_1, 1, "correlation", demean=TRUE)
-
-#returns_1<-crypto_dataset[,1]
-#lag1_returns_1_correlation<-acf(returns_1, 1, "correlation", demean=TRUE) # Nota che se studio la correlazione delle x allora c'è. Perché?
-
-#lag1_correlations <- apply(F_hat, 2, function(x) {
-#  tmp_acf <- acf(x, plot = FALSE, lag.max = 1)
-#  return(tmp_acf$acf[2])
-#})
-#names(lag1_correlations) <- c("Factor 1", "Factor 2", "Factor 3", "Factor 4")
-#print(lag1_correlations)
-#eigen(cov(standardized_returns))
