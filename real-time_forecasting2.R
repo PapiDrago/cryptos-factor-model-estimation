@@ -1,9 +1,37 @@
+# This algorithm implements the methodology as seen in
+# "Stock, J. H., & Watson, M. W. (2002). Forecasting Using Principal Components From a Large Number of Predictors".
+# Initially, we split our dataset in two:
+# i) training dataset, composed by the 75% of time observations;
+# ii) test dataset, composed by the remaining dataset.
+# We are going to estimate a factor model using the training dataset and
+# then we use it to forecast the first observation in the test set.
+# In particular the common factors are estimated through PCA, then for each
+# asset is estimated, through OLS, a linear model used then for the forecasting.
+# Subsequently we do the same thing with the training dataset now containing
+# also the observation we predicted in the last iteration.
+# We keep on doing it until we have as training set all the initial dataset
+# minus the last observation that will eventually predicted as last.
+# In the end we compute the MSE with all the forecast we stored along the
+# simulation and we compare it with the MSE of an AR model.
+# This AR model was estimated in each iteration together with the factor
+# model and serves as benchmark. Additionally the AR model is selected
+# considering always the best number of parameters according to the Bayes
+# information criterion.
+# More information is present as in-line comment in the following code.
+
+# Please notice that the significance of the estimated number of factors
+# is tested under Trapani test as described in the paper
+# (Trapani, L. (2018). A Randomized Sequential Procedure to
+# Determine the Number of Factors).
+# This allows us to keep only the eigenvalues which diverge to infinity in
+# a statistically significant way.
+
 # --- INITIAL SETUP ---
 # data_log_returns: T x N matrix of raw log returns
 # h: forecast horizon (e.g., 1)
 # p_max: max lags for AR (e.g., 7)
 
-run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max = 5) {
+run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7) {
   
   library(dfms)  # For ICr
   library(HDRFA) # For PCA
@@ -52,8 +80,9 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
     # IC3 always overestimates the number of common factors. In general all of them overestimate
     # I noticed a discrepancy between professor's notes and IC expressions showed in the ICr (dfms) documentation
     
-    k_trapani_history[row_idx] <- trapani_factor_test(ic$eigenvalues, N_assets, t, u_vec, weights_vec, alpha = 0.05)
+    k_trapani_history[row_idx] <- trapani_factor_test(ic$eigenvalues, N_assets, t, u_vec, weights_vec, alpha = 0.01)
     
+    # We adopt k_hat by keeping only the eigenvalues which diverge to infinity according to Trapani test
     if (k_trapani_history[row_idx] > 0) {
       estimated_factor_terms <- PCA(as.matrix(D_std_t), k_trapani_history[row_idx], constraint = "L")
     } else {

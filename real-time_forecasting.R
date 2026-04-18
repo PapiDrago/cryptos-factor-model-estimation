@@ -1,9 +1,35 @@
+# This algorithm implements the methodology as seen in
+# "Stock, J. H., & Watson, M. W. (2002). Forecasting Using Principal Components From a Large Number of Predictors".
+# Initially, we split our dataset in two:
+# i) training dataset, composed by the 75% of time observations;
+# ii) test dataset, composed by the remaining dataset.
+# We are going to estimate a factor model using the training dataset and
+# then we use it to forecast the first observation in the test set.
+# In particular the common factors are estimated through PCA, then for each
+# asset is estimated, through OLS, a linear model used then for the forecasting.
+# Subsequently we do the same thing with the training dataset now containing
+# also the observation we predicted in the last iteration.
+# We keep on doing it until we have as training set all the initial dataset
+# minus the last observation that will eventually predicted as last.
+# In the end we compute the MSE with all the forecast we stored along the
+# simulation and we compare it with the MSE of an AR model.
+# This AR model was estimated in each iteration together with the factor
+# model and serves as benchmark. Additionally the AR model is selected
+# considering always the best number of parameters according to the Bayes
+# information criterion.
+# More information is present as in-line comment in the following code.
+
+# Please notice that the significance of the estimated number of factors
+# is tested under Trapani test as described in the paper
+# (Trapani, L. (2018). A Randomized Sequential Procedure to
+# Determine the Number of Factors).
+
 # --- INITIAL SETUP ---
 # data_log_returns: T x N matrix of raw log returns
 # h: forecast horizon (e.g., 1)
 # p_max: max lags for AR (e.g., 7)
 
-run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max = 5) {
+run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7) {
   
   library(dfms)  # For ICr
   library(HDRFA) # For PCA
@@ -12,13 +38,13 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
   T_total <- nrow(data_log_returns)
   N_assets <- ncol(data_log_returns)
   T1 <- floor(0.75 * T_total)
-  
+  #browser()
   k_max <- floor(8 * (min(N_assets, T_total) / 100)^(1/4))
   # Using Schwert's rule to compute the upper limit of the number of common factors on which V(k) is computed when using ICr
   
   # Containers for results
-  n_forecasts = T_total - (T1 + h) + 1 # it coincides with the number of iterations of the next for loop: at iteration t, we forecast y_t+h starting from t=T1
-  # In actuals[1, i] there will be y_(T1+h)_i
+  n_forecasts = T_total - (T1 + h) + 1 # it coincides with the number of iterations of the outer-most for loop: at iteration t, we forecast y_t+h starting from t=T1
+  # In actuals[1, i] there will be y_(T1+h)_i, i is the cross-sectional unit
   actuals <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   forecasts_factor <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
   forecasts_ar <- matrix(NA, nrow = n_forecasts, ncol = N_assets)
@@ -31,8 +57,8 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
   mse_ar <- numeric(N_assets)
   rel_mse <- numeric(N_assets)
   
-  u_vec <- c(sqrt(2), -sqrt(2))
-  weights_vec <- c(0.5, 0.5)
+  u_vec <- c(sqrt(2), -sqrt(2)) # u1 and u2 exctracted from the distribution F(u)
+  weights_vec <- c(0.5, 0.5) # F(u1) and F(u2), as prescribed by Trapani paper
   
   # Real-time forecasting loop:
   # for each t we compute a forecast assuming not to have knowledge about the future (data)
@@ -48,19 +74,20 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
     D_std_t <- scale(D_train_t, center = train_means, scale = train_sds)
     
     # We estimate the number of factors applying eigenvalue thresholding techinque
-    ic <- ICr(D_std_t, k_max) # This functions minimizes 3 information criteria (IC) proposed by Bai and Ng (2002)
-    # IC3 always overestimates the number of common factors. In general all of them overestimate
-    # I noticed a discrepancy between professor's notes and IC expressions showed in the ICr (dfms) documentation
+    ic <- ICr(D_std_t, k_max) # This function return k_hat as the minimizer of 3 information criteria (IC)
+    # proposed by Bai and Ng (2002)
+    # In general all of them overestimate the estimated number of common factors k_hat.
     estimated_factor_terms <- PCA(as.matrix(D_std_t), min(ic$r.star), constraint = "L") # We finally estimate the common factors.
-
+    #browser()
     F_hat <- estimated_factor_terms$Fhat
     #F_hat <- as.data.frame(F_hat)
-
+    #browser()
 
     pred_f <- numeric(N_assets)
     best_pred_ar <- numeric(N_assets)
     
-    k_trapani_history[row_idx] <- trapani_factor_test(ic$eigenvalues, N_assets, t, u_vec, weights_vec, alpha = 0.05)
+    k_trapani_history[row_idx] <- trapani_factor_test(ic$eigenvalues, N_assets, t, u_vec, weights_vec, alpha = 0.01)
+    # See Trapani, L. (2018). A Randomized Sequential Procedure to Determine the Number of Factors
     
     for (i in 1:N_assets) {
       # We use OLS estimator to fit a linear model in order to forecast y_t+h
@@ -73,7 +100,7 @@ run_stock_watson_forecast <- function(data_log_returns, h = 1, p_max = 7, k_max 
       latest_F <- as.data.frame(matrix(F_hat[t, ], nrow = 1)) # matrix creates a matrix from the given set of values
       colnames(latest_F) <- colnames(X_factors)
       pred_f[i] <- predict(model_factor, newdata = latest_F) #y_t+h = beta_OLS * F_hat_t
-    
+          
       # We are going to compare our estimated factor model with an autoregressive model (AR)
       best_bic <- Inf
       best_p <- 0

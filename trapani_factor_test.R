@@ -1,11 +1,20 @@
+# A test to check if the larger k eigenvalues diverge to infinity using a randomised
+# test statistic based directly on the estimated eigenvalues.
+# Details are provided in:
+# Trapani, L. (2018). A Randomized Sequential Procedure to Determine the Number of Factors.
+# https://doi.org/10.1080/01621459.2017.1328359
+
 trapani_factor_test <- function(estimated_eigenvalues, N, T_total, u_vec, weights_vec, alpha = 0.05, R = 400) {
   # N = cross-sectional sample size, T_total = time sample size
   # estimated_eigenvalues = vector of eigenvalues
-  # weights_vec contain the values of F(u)
+  # u_vec contains the value of u drawn by a distribution F(u)
+  # weights_vec contains the values of F(u)
+  
   if (length(u_vec) != length(weights_vec)) {
     return(-1)
   }
   
+  # The method requires the eigenvalues to be ordered in ascending order
   eigenvalues <- sort(estimated_eigenvalues, decreasing = TRUE)
   
   beta <- log(N) / log(T_total) 
@@ -32,9 +41,10 @@ trapani_factor_test <- function(estimated_eigenvalues, N, T_total, u_vec, weight
     } else {
       phi_p = phi[p+1]
     }
-    # Generate artificial sample xi ~ i.i.d. N(0,1) (Step 1)
+    # Generate artificial sample of R observations xi ~ i.i.d. N(0,1)
     xi <- rnorm(R, mean = 0, sd = 1)
     
+    # 
     theta_squared_values <- sapply(u_vec, function(u) {
       
       zeta_seq <- as.numeric(sqrt(phi_p) * xi <= u)
@@ -50,10 +60,10 @@ trapani_factor_test <- function(estimated_eigenvalues, N, T_total, u_vec, weight
     critical_value <- qchisq(1 - alpha, df = 1)
     
     if (test_statistic > critical_value) {
-      # REJECT H0: The eigenvalue does not diverge
+      # Reject H0: The eigenvalue does not diverge
       break 
     } else {
-      # FAIL TO REJECT H0: The eigenvalue diverges (a valid factor)
+      # Fail to reject H0: The eigenvalue diverges (a significant factor)
       estimated_k <- p+1
     }
   }
