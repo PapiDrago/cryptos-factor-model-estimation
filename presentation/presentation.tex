@@ -6,6 +6,7 @@
 \usepackage[english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
+\usepackage{caption} %To use \caption*
 
 % 1. DEFINE THE LOGO HERE (Preamble)
 % We use \hspace* to pull it to the left. 
@@ -76,7 +77,7 @@
          \begin{itemize}
          \item  Extreme events happen rather frequently, see figure.
          \item Buying these assets exposes to a risk.
-         \item Develop a robust model to capture the common factors driving these movements. %Quando la presenti metti in evidenza che l'andamento sembra molto simile
+         \item Developing a model to capture the common factors driving these movements. %Quando la presenti metti in evidenza che l'andamento sembra molto simile
          \end{itemize}
      % \vspace{0.2cm} % Adds a small gap between itemize and footnotes
 \end{frame}
@@ -84,9 +85,29 @@
 
 \section{Factor Model}
 
-\begin{frame}{A Factor Model to Ca}
-\end{frame}
+\begin{frame}{Dataset Structure}
+    \begin{itemize}
+        \item \textbf{Dimensions:} $N=5$ assets across $T=1,369$ daily observations.
+    \end{itemize}
 
+    \begin{table}[h]
+        \centering
+        \small
+        \begin{tabular}{|l|c|c|c|c|c|}
+            \hline
+            \textbf{Date (T)}  & \textbf{ETH} &\textbf{BTC}&  \textbf{XRP} & \textbf{LTC}  & \textbf{XLM} \\ \hline
+            2016-01-01 & \$0.95 & \$434.33& \$0.006 & \$3.51 & \$0.002 \\ \hline
+            \dots & \dots & \dots & \dots & \dots  & \dots \\ \hline
+            2019-09-30 & \$179.87 & \$8293.87 & \$0.26 & \$56.06 & \$0.06 \\ \hline
+        \end{tabular}
+        \caption*{Structure of the $X$ matrix $(T \times N)$.}
+    \end{table}
+
+    \begin{itemize}
+        \item Only asset prices are present.
+        \item Common factors are unobservable.
+    \end{itemize}
+\end{frame}
 
 
 \section{Our Results/Contribution}
