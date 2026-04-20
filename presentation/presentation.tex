@@ -1,0 +1,199 @@
+% $Header$
+
+\documentclass{beamer}
+
+\usetheme{metropolis}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+
+% 1. DEFINE THE LOGO HERE (Preamble)
+% We use \hspace* to pull it to the left. 
+% Adjust -1cm to move it further or less.
+\titlegraphic{%
+  \vspace{-0.25cm} % Adjust vertical position if needed
+  \hspace*{-0.1cm}% This "nudges" it to the left
+  \includegraphics[width=0.35\textwidth]{figures/black_unipv_right-removebg-preview.png}
+}
+
+\title{Cryptocurrency Factor Forecasting \& Structural Validation}
+\subtitle{Financial Data Science} % Use subtitle for the course name
+\author{Claudio Guarrasi \\ \texttt{claudio.guarrasi01@universitadipavia.it}}
+\institute{Department of Electrical, Computer and Biomedical Engineering\\ University of Pavia}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+
+\end{frame}
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Motivation}
+
+\subsection{Volatility of Cryptos}
+
+\begin{frame}{Cryptos Market Has Become Huge}
+  \begin{center}
+  	\includegraphics[width=\textwidth]{~/Desktop/crypto_plot_final.pdf}
+        %\caption{Crypto Market Growth}
+ \end{center}       
+        %\vspace{0.2cm} % Adds a small gap between plot and text
+         \begin{itemize}
+         \item Market capitalization of cryptos has reached approximately \$2.57 trillion\footnote{\url{https://coinmarketcap.com/charts/} (Accessed on 18/04/26)}, comparable to the GDP of Italy\footnote{\url{https://data.imf.org/en/Data-Explorer?datasetUrn=IMF.RES:WEO_2025_OCT_VINTAGE(1.0.0)}}.
+        %\item Italy remains one of the largest economies in Europe.
+        \item Use short, impactful phrases for better readability.
+      \end{itemize}
+    \end{frame}
+\begin{frame}{Make Titles Informative.}
+
+  You can create overlays\dots
+  \begin{itemize}
+  \item using the \texttt{pause} command:
+    \begin{itemize}
+    \item
+      First item.
+      \pause
+    \item
+      Second item.
+    \end{itemize}
+  \item
+    using overlay specifications:
+    \begin{itemize}
+    \item<3->
+      First item.
+    \item<4->
+      Second item.
+    \end{itemize}
+  \item
+    using the general \texttt{uncover} command:
+    \begin{itemize}
+      \uncover<5->{\item
+        First item.}
+      \uncover<6->{\item
+        Second item.}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\subsection{Previous Work}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+
+
+\section{Our Results/Contribution}
+
+\subsection{Main Results}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+
+\subsection{Basic Ideas for Proofs/Implementation}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+\begin{frame}{Make Titles Informative.}
+\end{frame}
+
+
+
+\section*{Summary}
+
+\begin{frame}{Summary}
+
+  % Keep the summary *very short*.
+  \begin{itemize}
+  \item
+    The \alert{first main message} of your talk in one or two lines.
+  \item
+    The \alert{second main message} of your talk in one or two lines.
+  \item
+    Perhaps a \alert{third message}, but not more than that.
+  \end{itemize}
+  
+  % The following outlook is optional.
+  \vskip0pt plus.5fill
+  \begin{itemize}
+  \item
+    Outlook
+    \begin{itemize}
+    \item
+      Something you haven't solved.
+    \item
+      Something else you haven't solved.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+
+% All of the following is optional and typically not needed. 
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{For Further Reading}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{For Further Reading}
+    
+  \begin{thebibliography}{10}
+    
+  \beamertemplatebookbibitems
+  % Start with overview books.
+
+  \bibitem{Author1990}
+    A.~Author.
+    \newblock {\em Handbook of Everything}.
+    \newblock Some Press, 1990.
+ 
+    
+  \beamertemplatearticlebibitems
+  % Followed by interesting articles. Keep the list short. 
+
+  \bibitem{Someone2000}
+    S.~Someone.
+    \newblock On this and that.
+    \newblock {\em Journal of This and That}, 2(1):50--100,
+    2000.
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
+
+
