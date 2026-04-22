@@ -109,8 +109,53 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{Factor Model}
+    \begin{itemize}
+        \item Enables estimation in the presence of \textbf{unobserved predictors}.
+        \item Assumes that $X_{i,t}$ is driven by a small, \textbf{unknown number ($k$)} of latent common factors:
+    \end{itemize}
 
-\section{Our Results/Contribution}
+    \begin{center}
+    \vspace{-0.3cm}
+    \begin{equation*}
+        X_{i,t} = \phi_i' F_t + u_{i,t}, \quad 
+        \begin{cases} 
+            i=1,\dots,N \\ 
+            t=1,\dots,T 
+        \end{cases}
+    \end{equation*}
+    \end{center}
+
+    \begin{block}{Model Components}
+        \begin{description}
+            \item[$F_t$] \textbf{Common Factors:}  $k \times 1$ vector of market drivers.
+            \item[$\phi_i$] \textbf{Factor Loadings:} $k \times 1$ vector describing the impact of common factors on asset $i$. 
+            \item[$u_{i,t}$] \textbf{Idiosyncratic Component:} Residual asset-specific noise.
+        \end{description}
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{Main Assumptions}
+    To ensure the mathematical consistency of the factor model, we assume:
+    
+    \begin{itemize}
+        \item \textbf{Asymptotics:} $\min\{N, T\} \to \infty$ for the consistent estimation of both the factor space and the true number of common factors $k$.
+        \item \textbf{Stationarity:} $X_{i,t}$ is a stationary process, ensuring stable moment properties over time.
+        \item \textbf{Moment Conditions:} $E|u_{i,t}|^8 < \infty$. High-order moments are required for the asymptotic convergence of the sample covariance matrices.
+    \end{itemize}
+
+    \begin{block}{Covariance Structure and Eigenvalues}
+        Let $\Sigma_F = E[F_t F_t'] > 0$. Under the existence of the 4th moment, the first $k$ eigenvalues of $\hat{\Sigma}_X$ diverge:
+        \begin{equation*}
+                \lambda_j(\hat{\Sigma}_X) \ge c_0N, \quad \text{for } j=1, \dots, k
+            \end{equation*}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
 
 \subsection{Main Results}
 
