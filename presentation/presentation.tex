@@ -212,6 +212,7 @@
     \end{block}
 \end{frame}
 
+\section{Stock \& Watson Methodology}
 
 \begin{frame}{Stock \& Watson Methodology}
     \begin{itemize}
@@ -245,17 +246,50 @@
         
         \item \textbf{Resolution via OLS:} This sign misalignment is automatically compensated for by the estimated OLS parameters in the linear regression model:
         \begin{equation*}
-            \hat{y}_{i,t+1} = \hat{\beta}_i \hat{F}_t
+            \hat{y}_{i,t+1} = \hat{\beta}_i' \hat{F}_t
         \end{equation*}
     \end{itemize}
 \end{frame}
 
+\subsection{Main Results}
+
+\begin{frame}{Results: Factor Model vs. AR Benchmark}
+    To evaluate performance, we calculate the \textbf{Relative Mean Squared Error} for each asset:
+    \begin{equation*}
+        \text{RelMSE}_i = \frac{MSE_{i, \text{Factor}}}{MSE_{i, \text{AR}}}
+    \end{equation*}
+    A ratio $< 1$ indicates that the factor model provides a gain in predictive accuracy over the benchmark.
+    
+    \textbf{Findings:}
+    \begin{itemize}
+        \item For the analyzed cryptocurrencies, the \textbf{Relative MSE is approximately 1} in each case. This suggests that the factor model and the AR model yield nearly equivalent forecast errors.
+        \item For \textbf{3 out of 5 assets}, the BIC-optimal lag was \textbf{$p=0$}, whereas the estimated number of common factors was \textbf{$\hat{k} = 3$}.
+        \item \textbf{Interpretation:} For the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.    \end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check: Expanding the Cross-Section ($N$)}
+    To determine if the previous results were due to the small cross-section ($N=5$), we expanded the dataset using the \textbf{\texttt{crypto2}} package:
+    
+    \begin{itemize}
+        \item We cleaned the data inspired by the methodology of \textbf{Bianchi and Babiak (2022)}, filtering for liquidity and market capitalization to ensure a high-quality data pool.
+        \item We increased the number of assets $(N = 29)$ to test if a larger dataset would improve the prediction accuracy.
+        \item \textbf{Findings:} 
+        \begin{itemize}
+            \item The \textbf{Relative MSE results remained analogous} to the small-sample case (RelMSE $\approx$ 1).
+            \item Expanding the number of assets did not yield superior predictive performance over the AR(0) benchmark.
+        \end{itemize}
+    \end{itemize}
+
+    \begin{block}{The Fundamental Question}
+        Does a factor structure actually exist in the data (i.e., is $k > 0$)? 
+    \end{block}
+    \end{frame}
+% conclusioni
 
 \begin{frame}
 
 \end{frame}
 
-\subsection{Main Results}
 
 \begin{frame}{Make Titles Informative.}
 \end{frame}
