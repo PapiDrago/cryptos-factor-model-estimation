@@ -180,26 +180,9 @@
     \end{itemize}
 \end{frame}
 
+\subsection{Initial Approach}
 
-\begin{frame}{Initial Approach: The Limits of Pure PCA}
-    We can easily estimate common factors $\hat{F}_t$ by applying Principal Component Analysis (PCA) to the full sample of log-returns. This naturally, under our assumptions, However is not that easy:
-    
-    \begin{itemize}
-        \item PCA successfully reduces our 5 assets into a few orthogonal components that capture the highest variance.
-        \item \textbf{The Problem:} 
-        \begin{itemize}
-            \item \textbf{Lack of Interpretation:} These factors are just mathematical constructs; we don't know their relationship with individual asset dynamics.
-            \item \textbf{No Testing Framework:} We cannot assess the "goodness of fit" or perform hypothesis testing in a static environment.
-            \item \textbf{Look-ahead Bias:} Using the whole dataset to find factors prevents us from testing how the model would have performed in "real-time."
-        \end{itemize}
-    \end{itemize}
-
-    \begin{block}{Transition to Stock \& Watson (2002)}
-        To transform these "blind" factors into a verifiable forecasting tool, we adopt the \textbf{Stock and Watson methodology}, which allows for simulation, benchmarking, and formal evaluation.
-    \end{block}
-\end{frame}
-
-\begin{frame}{Estimating the Number of Common Factors}
+\begin{frame}{Initial Approach: Estimating the Number of Common Factors}
     To determine the optimal number of factors $\hat{k}$, we employ the information criteria proposed by \textbf{Bai and Ng (2002)}:
     
     \begin{itemize}
@@ -212,7 +195,64 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{Initial Approach: Static Factor Estimation}
+    \begin{itemize}
+        \item \textbf{Estimation:} Common factors $\hat{F}_t$ are estimated via Principal Component Analysis (PCA) on the full sample of log-returns.
+        \item \textbf{Dimension Reduction:} $\hat{F}_t$ corresponds to the $\hat{k}$ largest eigenvalues of the sample covariance matrix $\hat{\Sigma}_X$.
+    \end{itemize}
+
+    \textbf{Limitations:}
+    \begin{itemize}
+        \item Factors lack direct interpretability.
+        \item Difficulty in assessing the model's predictive accuracy.
+    \end{itemize}
+
+    \begin{block}{Transition to Stock \& Watson (2002)}
+        To evaluate the "goodness of fit," we adopt the \textbf{Stock and Watson methodology}, which enables real-time simulation and benchmarking.
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{Stock \& Watson Methodology}
+    \begin{itemize}
+        \item \textbf{Data Split:} The sample is divided into a \textbf{training set} (75\%) and a \textbf{test set} (25\%).
+        \item \textbf{Recursive Estimation:} For each time $t$ in the test set:
+        \begin{enumerate}
+            \item Factors $\hat{F}_t$ are extracted via PCA from the training window.
+            \item A linear model is estimated via OLS for each asset using $\hat{F}_t$
+            \item A 1-step ahead forecast is generated and stored: $\hat{y}_{i,t+1} = \hat{\beta}_i \hat{F}_t$.
+            \item The training window expands to include the observation at $t$.
+        \end{enumerate}
+        \item \textbf{Benchmarking:} An \textbf{AR($p$)} model is estimated at each step:
+        \begin{equation*}
+            y_{i, t+1} = \beta_0 + \sum_{j=1}^{p} \beta_j y_{t-j} + \epsilon_{t+1}
+        \end{equation*}
+        where $p$ is selected dynamically via \textbf{BIC}.
+        \item \textbf{Evaluation:} Model utility is determined by comparing the \textbf{Mean Squared Error (MSE)} of the Factor Model against the AR benchmark.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Theoretical Consistency and Identifiability}
+    The framework provides mathematical assurance regarding the consistent estimation of common factors:
+    \vspace{-0.25cm}
+    \begin{itemize}
+        \item \textbf{Consistency up to Rotation:} PCA consistently estimates $H F_t$ rather than $F_t$, where $H$ is a non-singular $k \times k$ rotation matrix. The R implementation utilizes the \texttt{PCA} function from the \textbf{\texttt{HDRFA}} package.
+        
+        \item \textbf{Simplification to Sign Uncertainty:} Stock and Watson (2002) show that under our assumptions and distinct eigenvalues, the rotation $H$ simplifies to a sign-switching matrix $S$. 
+        \begin{itemize}
+            \item Factors are essentially identified up to a \textbf{change of sign} ($\pm \hat{F}_t$).
+        \end{itemize}
+        
+        \item \textbf{Resolution via OLS:} This sign misalignment is automatically compensated for by the estimated OLS parameters in the linear regression model:
+        \begin{equation*}
+            \hat{y}_{i,t+1} = \hat{\beta}_i \hat{F}_t
+        \end{equation*}
+    \end{itemize}
+\end{frame}
+
+
 \begin{frame}
+
 \end{frame}
 
 \subsection{Main Results}
