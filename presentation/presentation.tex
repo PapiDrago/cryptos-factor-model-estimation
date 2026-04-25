@@ -33,22 +33,22 @@
 
 \end{frame}
 
-% Structuring a talk is a difficult task and the following structure
-% may not be suitable. Here are some rules that apply for this
-% solution: 
+ Structuring a talk is a difficult task and the following structure
+ may not be suitable. Here are some rules that apply for this
+ solution: 
 
-% - Exactly two or three sections (other than the summary).
-% - At *most* three subsections per section.
-% - Talk about 30s to 2min per frame. So there should be between about
-%   15 and 30 frames, all told.
+ - Exactly two or three sections (other than the summary).
+ - At *most* three subsections per section.
+ - Talk about 30s to 2min per frame. So there should be between about
+   15 and 30 frames, all told.
 
-% - A conference audience is likely to know very little of what you
-%   are going to talk about. So *simplify*!
-% - In a 20min talk, getting the main ideas across is hard
-%   enough. Leave out details, even if it means being less precise than
-%   you think necessary.
-% - If you omit details that are vital to the proof/implementation,
-%   just say so once. Everybody will be happy with that.
+ - A conference audience is likely to know very little of what you
+   are going to talk about. So *simplify*!
+ - In a 20min talk, getting the main ideas across is hard
+   enough. Leave out details, even if it means being less precise than
+   you think necessary.
+ - If you omit details that are vital to the proof/implementation,
+   just say so once. Everybody will be happy with that.
 
 \section{Motivation}
 
@@ -264,7 +264,8 @@
     \begin{itemize}
         \item For the analyzed cryptocurrencies, the \textbf{Relative MSE is approximately 1} in each case. This suggests that the factor model and the AR model yield nearly equivalent forecast errors.
         \item For \textbf{3 out of 5 assets}, the BIC-optimal lag was \textbf{$p=0$}, whereas the estimated number of common factors was \textbf{$\hat{k} = 3$}.
-        \item \textbf{Interpretation:} For the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.    \end{itemize}
+        \item \textbf{Interpretation:} For the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.
+        \end{itemize}
 \end{frame}
 
 \begin{frame}{Robustness Check: Expanding the Cross-Section ($N$)}
@@ -281,99 +282,80 @@
     \end{itemize}
 
     \begin{block}{The Fundamental Question}
-        Does a factor structure actually exist in the data (i.e., is $k > 0$)? 
+        Does a factor structure actually exist in the data (i.e. $k > 0$)? 
     \end{block}
     \end{frame}
-% conclusioni
-
-\begin{frame}
-
-\end{frame}
-
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-
-\subsection{Basic Ideas for Proofs/Implementation}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-\begin{frame}{Make Titles Informative.}
-\end{frame}
-
-
-
-\section*{Summary}
-
-\begin{frame}{Summary}
-
-  % Keep the summary *very short*.
-  \begin{itemize}
-  \item
-    The \alert{first main message} of your talk in one or two lines.
-  \item
-    The \alert{second main message} of your talk in one or two lines.
-  \item
-    Perhaps a \alert{third message}, but not more than that.
-  \end{itemize}
-  
-  % The following outlook is optional.
-  \vskip0pt plus.5fill
-  \begin{itemize}
-  \item
-    Outlook
+    
+    \begin{frame}{Testing for Factor Strength: The Trapani (2018) Test}
+    To determine if the factors are "strong" or merely noise, we test the behavior of the eigenvalues $\lambda^{(p)}$ for $p=1, \dots, \hat{k}$ as $N \to \infty$:
+    
     \begin{itemize}
-    \item
-      Something you haven't solved.
-    \item
-      Something else you haven't solved.
+        \item \textbf{Hypotheses:}
+        \begin{itemize}
+            \item $H_0: \lambda^{(p)} = O(N)$ (Diverging eigenvalue; strong factor).
+            \item $H_A: \lambda^{(p)} = O(1)$ (Bounded eigenvalue; noise).
+        \end{itemize}
+        
+        \item \textbf{Test Statistic:} Trapani constructs a statistic $\Theta^{(p)}$ that, under $H_0$, follows a \textbf{chi-squared distribution}:
+        \begin{equation*}
+            \Theta^{(p)} \sim \chi^2(1)
+        \end{equation*}
+        
+        \item \textbf{Empirical Results:}
+        \begin{itemize}
+            \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating the absence of a common factor structure.
+            \item \textbf{Expanded Dataset ($N=29$):} We reject $H_0$ for the second largest eigenvalues ($\hat{k}=1$).
+        \end{itemize}
     \end{itemize}
-  \end{itemize}
+\end{frame}    
+    
+    
+    
+    
+\begin{frame}{Conclusions}
+    This study evaluated the presence and predictive utility of common factors in the cryptocurrency market using the \textbf{Stock \& Watson (2002)} framework and the \textbf{Trapani (2018)} test:
+    
+    \begin{itemize}
+        \item \textbf{Predictive Performance:} In both small ($N=5$) and large ($N=29$) datasets, the factor model yielded a \textbf{Relative MSE $\approx$ 1}. The common signal was unable to provide a gain in accuracy over a simple AR(0) benchmark.
+        
+        \item \textbf{Factor Strength:} Using the \textbf{Trapani (2018)} test, we identified that factor identification is highly dependent on the cross-sectional dimension:
+        \begin{itemize}
+            \item For \textbf{$N=5$}, no consistent factor structure was found ($\hat{k}=0$).
+            \item For \textbf{$N=29$}, a statistically diverging signal begins to emerge ($\hat{k} \ge 1$).
+        \end{itemize}
+        
+        \item \textbf{Final Takeaway:} While a common factor structure exists in the broader crypto market, it is characterized by \textbf{"weak" identification}. The high level of idiosyncratic noise makes these factors difficult to exploit for short-term linear forecasting, suggesting the market behaves closely to a random walk.
+    \end{itemize}
 \end{frame}
-
-
 
 % All of the following is optional and typically not needed. 
-\appendix
-\section<presentation>*{\appendixname}
-\subsection<presentation>*{For Further Reading}
-
-\begin{frame}[allowframebreaks]
-  \frametitle<presentation>{For Further Reading}
-    
-  \begin{thebibliography}{10}
-    
-  \beamertemplatebookbibitems
-  % Start with overview books.
-
-  \bibitem{Author1990}
-    A.~Author.
-    \newblock {\em Handbook of Everything}.
-    \newblock Some Press, 1990.
- 
-    
-  \beamertemplatearticlebibitems
-  % Followed by interesting articles. Keep the list short. 
-
-  \bibitem{Someone2000}
-    S.~Someone.
-    \newblock On this and that.
-    \newblock {\em Journal of This and That}, 2(1):50--100,
-    2000.
-  \end{thebibliography}
-\end{frame}
+%\appendix
+%\section<presentation>*{\appendixname}
+%\subsection<presentation>*{For Further Reading}
+%
+%\begin{frame}[allowframebreaks]
+%  \frametitle<presentation>{For Further Reading}
+%    
+%  \begin{thebibliography}{10}
+%    
+%  \beamertemplatebookbibitems
+%  % Start with overview books.
+%
+%  \bibitem{Author1990}
+%    A.~Author.
+%    \newblock {\em Handbook of Everything}.
+%    \newblock Some Press, 1990.
+% 
+%    
+%  \beamertemplatearticlebibitems
+%  % Followed by interesting articles. Keep the list short. 
+%
+%  \bibitem{Someone2000}
+%    S.~Someone.
+%    \newblock On this and that.
+%    \newblock {\em Journal of This and That}, 2(1):50--100,
+%    2000.
+%  \end{thebibliography}
+%\end{frame}
 
 \end{document}
-
-
