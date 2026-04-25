@@ -29,27 +29,9 @@
   \titlepage
 \end{frame}
 
-\begin{frame}{Outline}
-
-\end{frame}
-
- Structuring a talk is a difficult task and the following structure
- may not be suitable. Here are some rules that apply for this
- solution: 
-
- - Exactly two or three sections (other than the summary).
- - At *most* three subsections per section.
- - Talk about 30s to 2min per frame. So there should be between about
-   15 and 30 frames, all told.
-
- - A conference audience is likely to know very little of what you
-   are going to talk about. So *simplify*!
- - In a 20min talk, getting the main ideas across is hard
-   enough. Leave out details, even if it means being less precise than
-   you think necessary.
- - If you omit details that are vital to the proof/implementation,
-   just say so once. Everybody will be happy with that.
-
+%\begin{frame}{Outline}
+%
+%\end{frame}
 \section{Motivation}
 
 \subsection{Volatility of Cryptos}
@@ -309,24 +291,17 @@
     \end{itemize}
 \end{frame}    
     
-    
-    
-    
 \begin{frame}{Conclusions}
-    This study evaluated the presence and predictive utility of common factors in the cryptocurrency market using the \textbf{Stock \& Watson (2002)} framework and the \textbf{Trapani (2018)} test:
+    This work evaluated the presence and predictive utility of common factors in the cryptocurrency market using the \textbf{Stock \& Watson (2002)} framework and \textbf{Trapani (2018)} test.
     
     \begin{itemize}
-        \item \textbf{Predictive Performance:} In both small ($N=5$) and large ($N=29$) datasets, the factor model yielded a \textbf{Relative MSE $\approx$ 1}. The common signal was unable to provide a gain in accuracy over a simple AR(0) benchmark.
-        
-        \item \textbf{Factor Strength:} Using the \textbf{Trapani (2018)} test, we identified that factor identification is highly dependent on the cross-sectional dimension:
-        \begin{itemize}
-            \item For \textbf{$N=5$}, no consistent factor structure was found ($\hat{k}=0$).
-            \item For \textbf{$N=29$}, a statistically diverging signal begins to emerge ($\hat{k} \ge 1$).
+        \item \textbf{Predictive Performance:} In both small and large datasets, the factor model yielded a \textbf{Relative MSE $\approx$ 1}, failing to outperform a simple AR(0) benchmark.
+        \item \textbf{Identification Sensitivity:} The \textbf{Trapani (2018)} test reveals that factor identification is highly dependent on the cross-sectional dimension ($N$).
+        \item \textbf{Sample-Size Dependency:} No consistent factor structure was identifiable for $N=5$ ($\hat{k}=0$), whereas a statistically diverging signal begins to emerge for $N=29$ ($\hat{k}=1$). 
         \end{itemize}
-        
-        \item \textbf{Final Takeaway:} While a common factor structure exists in the broader crypto market, it is characterized by \textbf{"weak" identification}. The high level of idiosyncratic noise makes these factors difficult to exploit for short-term linear forecasting, suggesting the market behaves closely to a random walk.
-    \end{itemize}
 \end{frame}
+    
+    
 
 % All of the following is optional and typically not needed. 
 %\appendix
