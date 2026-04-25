@@ -2,8 +2,7 @@
 rm(list=ls())
 
 # Setting as working directory the folder of this script
-setwd("/Users/papidrago/Desktop/financial_data_science/cryptos-factor-model-estimation") 
-
+setwd("~/Desktop/financial_data_science/cryptos-factor-model-estimation")
 # Loading the real-time forecasting function, implemented according Stock and Watson methodology,
 # which also integrates the Trapani test to collect evidence about the presence of a common factor structure in the data.
 source("real-time_forecasting.R")
@@ -19,6 +18,8 @@ source("real-time_forecasting.R")
 
 # Trapani, L. (2018). A Randomized Sequential Procedure to Determine the Number of Factors.
 # https://doi.org/10.1080/01621459.2017.1328359
+
+# Bianchi Daniele, and Mykola Babiak. "A factor model for cryptocurrency returns." CERGE-EI Working Paper Series 710 (2021).
 
 # Install packages
 # install.packages("ggplot2",dependencies=TRUE)
