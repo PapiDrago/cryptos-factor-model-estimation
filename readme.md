@@ -24,6 +24,6 @@ The algorithm performs a recursive, real-time comparison between:
 - `crypto_simplified_final_prices_100.csv`: Fatter dataset for trying to capture common factors.
 
 ### Prerequisites
-This code was tested using R 4.5.3 and the following libraries:
+This code was tested using R 4.5.3 and the following packages:
 ```R
 install.packages(c("readxl", "dfms", "HDRFA", "crypto2", "dplyr", "tidyr", "readr", "zoo"))
