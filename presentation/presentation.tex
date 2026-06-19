@@ -140,22 +140,39 @@
 
 
 \begin{frame}{Main Assumptions}
-    To ensure the mathematical consistency of the factor model, we assume:
-    
-    \begin{itemize}
-        \item \textbf{Asymptotics:} $\min\{N, T\} \to \infty$ for the consistent estimation of both the factor space and the true number of common factors $k$.
-        \item \textbf{Stationarity:} $X_{i,t}$ is a stationary process, ensuring stable moment properties over time.
-        \item \textbf{Moment Conditions:} $E|u_{i,t}|^8 < \infty$. High-order moments are required for the asymptotic convergence of the sample covariance matrices.
-    \end{itemize}
+  For consistent estimation of the factor space and of the number of
+  factors $k$ by PCA, we assume:
+  \vspace{-0.25cm}
+  \begin{itemize}
+    \item \textbf{Asymptotics:} $\min\{N,T\}\to\infty$ jointly.
+    \item \textbf{Stationarity \& moments:} $X_{i,t}$ is (weakly) stationary,
+          with $\mathbb{E}\lVert F_t\rVert^{4}<\infty$ and
+          $\mathbb{E}\lvert u_{i,t}\rvert^{8}<\infty$, so the sample
+          covariances converge.
+    \item \textbf{Factor identification:}
+          $\Sigma_F=\mathbb{E}[F_tF_t']\succ 0$ (rank $k$): the factors are linearly independent.
+    \item \alert{\textbf{Pervasive (strong) factors:}}
+          $\dfrac{1}{N}\sum_{i=1}^{N}\phi_i\phi_i' \;\Sigma_\phi\succ 0$
+          as $N\to\infty$: each factor's loadings accumulate at rate $N$.
+    \item \textbf{Approximate factor structure:}
+          $\lambda_{\max}(\Sigma_u)=O(1)$ as $N\to\infty$: only \emph{weak}
+          cross-sectional dependence is allowed in $u_{i,t}$.
+    \item \textbf{Exogeneity:} $\mathbb{E}[u_{i,t}F_t']=0$ (factors and
+          idiosyncratic errors uncorrelated).
+  \end{itemize}
+  \end{frame}
 
-    \begin{block}{Covariance Structure and Eigenvalues}
-        Let $\Sigma_F = E[F_t F_t'] > 0$. Under the existence of the 4th moment, the first $k$ eigenvalues of $\hat{\Sigma}_X$ diverge:
-        \begin{equation*}
-                \lambda_j(\hat{\Sigma}_X) \ge c_0N, \quad \text{for } j=1, \dots, k
-            \end{equation*}
-    \end{block}
+\begin{frame}{Consequence: eigenvalue separation}
+    Pervasiveness together with $\Sigma_F\succ0$ makes the top $k$
+    eigenvalues \emph{diverge}, while the approximate structure keeps the
+    rest bounded:
+    \[
+      \lambda_j(\hat\Sigma_X)\;\ge\; c_0\,N \quad (j\le k),
+      \qquad
+      \lambda_j(\hat\Sigma_X)\;=\;O(1) \quad (j> k).
+    \]
+    This widening gap is what PCA exploits to recover the factor space.
 \end{frame}
-
 
 \subsection{Data Exploration}
 
@@ -262,13 +279,18 @@
         \text{RelMSE}_i = \frac{MSE_{i, \text{Factor}}}{MSE_{i, \text{AR}}}
     \end{equation*}
     A ratio $< 1$ indicates that the factor model provides a gain in predictive accuracy over the benchmark.
-    
+ \vspace{-0.12cm}
     \textbf{Findings:}
+    \vspace{0.12cm}
     \begin{itemize}
-        \item For the analyzed cryptocurrencies, the \textbf{Relative MSE is approximately 1} in each case. This suggests that the factor model and the AR model yield nearly equivalent forecast errors.
-        \item For \textbf{3 out of 5 assets}, the BIC-optimal lag was \textbf{$p=0$}, whereas the estimated number of common factors was \textbf{$\hat{k} = 3$}.
-        \item \textbf{Interpretation:} For the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.
-        \end{itemize}
+        \item For the analyzed cryptocurrencies, the \textbf{Relative MSE is approximately 1} in each case: the factor model and the AR model yield nearly equivalent forecast errors.
+        \item For \textbf{3 out of 5 assets} the BIC-optimal lag was \textbf{$p=0$}, while the estimated number of factors saturated its ceiling:
+        \begin{equation*}
+            \textcolor{red}{\hat{k} = 3 = k_{\max}}.
+        \end{equation*}
+       It \emph{seems} the approximate-factor condition is violated here, i.e.\ $\lambda_{\max}(\Sigma_u)$ appears \textbf{unbounded}.
+       %\item \textbf{Interpretation:} for the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.%
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Robustness Check: Expanding the Cross-Section ($N$)}
@@ -306,7 +328,7 @@
         
         \item \textbf{Empirical Results:}
         \begin{itemize}
-            \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating the absence of a common factor structure.
+            \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating the absence of evidence about a common factor structure.
             \item \textbf{Expanded Dataset ($N=29$):} We reject $H_0$ for the second largest eigenvalues ($\hat{k}=1$).
         \end{itemize}
     \end{itemize}
