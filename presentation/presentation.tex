@@ -297,11 +297,11 @@
     To determine if the previous results were due to the small cross-section ($N=5$), we expanded the dataset using the \textbf{\texttt{crypto2}} package:
     
     \begin{itemize}
-        \item We cleaned the data inspired by the methodology of \textbf{Bianchi and Babiak (2022)}, filtering for liquidity and market capitalization to ensure a high-quality data pool.
+        \item We cleaned the data inspired by the methodology of \textbf{Bianchi and Babiak (2022)} to ensure a high-quality data pool.
         \item We increased the number of assets $(N = 29)$ to test if a larger dataset would improve the prediction accuracy.
         \item \textbf{Findings:} 
         \begin{itemize}
-            \item The \textbf{Relative MSE results remained analogous} to the small-sample case (RelMSE $\approx$ 1).
+            \item The \textbf{Relative MSE results remained analogous} to the small-sample case (RelMSE $\approx$ 1), while the estimated number of factors was $\hat{k} = 1$.
             \item Expanding the number of assets did not yield superior predictive performance over the AR(0) benchmark.
         \end{itemize}
     \end{itemize}
