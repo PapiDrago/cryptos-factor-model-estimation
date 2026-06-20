@@ -140,40 +140,46 @@
 
 
 \begin{frame}{Main Assumptions}
-  For consistent estimation of the factor space and of the number of
-  factors $k$ by PCA, we assume:
-  \vspace{-0.25cm}
   \begin{itemize}
-    \item \textbf{Asymptotics:} $\min\{N,T\}\to\infty$ jointly.
-    \item \textbf{Stationarity \& moments:} $X_{i,t}$ is (weakly) stationary,
-          with $\mathbb{E}\lVert F_t\rVert^{4}<\infty$ and
-          $\mathbb{E}\lvert u_{i,t}\rvert^{8}<\infty$, so the sample
-          covariances converge.
-    \item \textbf{Factor identification:}
-          $\Sigma_F=\mathbb{E}[F_tF_t']\succ 0$ (rank $k$): the factors are linearly independent.
-    \item \textbf{Pervasive (strong) factors:}
-          $\dfrac{1}{N}\sum_{i=1}^{N}\phi_i\phi_i' \;\Sigma_\phi\succ 0$
-          as $N\to\infty$: each factor's loadings accumulate at rate $N$.
-    \item \textbf{Approximate factor structure:}
-          $\lambda_{\max}(\Sigma_u)=O(1)$ as $N\to\infty$: only \emph{weak}
-          cross-sectional dependence is allowed in $u_{i,t}$.
-    \item \textbf{Exogeneity:} $\mathbb{E}[u_{i,t}F_t']=0$ (factors and
-          idiosyncratic errors uncorrelated).
+   \item \textbf{(Weak) Stationarity:} $\mathbb{E}[X_t] = \mu$, $\mathrm{Cov}(X_t,\,X_{t+h}) = \gamma(h)$.
+    \item \textbf{Asymptotics:} $\min\{N,T\}\to\infty$.
+    \item \textbf{A1 -- Factors:} $\mathbb{E}\lVert F_t\rVert^{4}<\infty$ and
+          $\tfrac1T\sum_{t=1}^{T} F_tF_t' \xrightarrow{p} \Sigma_F \succ 0$
+          (full rank: identification).
+    \item \textbf{A2 -- Loadings (pervasive):}
+          $\tfrac1N\sum_{i=1}^{N}\phi_i\phi_i' \to \Sigma_\Phi \succ 0$ ---
+          loadings accumulate at rate $N$ (\emph{strong} factors).
+    \item \textbf{A3 -- Idiosyncratic (weak dependence):}
+          $\mathbb{E}\lvert u_{i,t}\rvert^{8}<\infty$ and, with
+          $\mathbb{E}[u_{i,t}u_{j,s}]=\tau_{ij,ts}$, the summability
+          $\tfrac1N\sum_{i,j}\lvert\tau_{ij}\rvert<\infty$
+          $\Rightarrow \lambda_{\max}(\Sigma_u)=O(1)$.
+    \item \textbf{A4 -- Independence:} $\{\phi_i\}$, $\{F_t\}$, $\{u_{i,t}\}$
+          are independent groups (hence $\mathbb{E}[u_tF_t']=0$).
   \end{itemize}
-  \end{frame}
-
-\begin{frame}{Consequence: eigenvalue separation}
-    Pervasiveness together with $\Sigma_F\succ0$ makes the top $k$
-    eigenvalues \emph{diverge}, while the approximate structure keeps the
-    rest bounded:
-    \[
-      \lambda_j(\hat\Sigma_X)\;\ge\; c_0\,N \quad (j\le k),
-      \qquad
-      \lambda_j(\hat\Sigma_X)\;=\;O(1) \quad (j> k).
-    \]
-    This widening gap is what PCA exploits to recover the factor space.
 \end{frame}
 
+\begin{frame}{Consequence: Eigenvalue Separation}
+  We can write the sample covariance $\hat\Sigma_X = \tfrac1T\sum_t X_tX_t'$ as:
+  \[
+    \hat\Sigma_X =
+    \underbrace{\Phi\Big(\tfrac1T\textstyle\sum_t F_tF_t'\Big)\Phi'}_{A}
+    \;+\;
+    \underbrace{\tfrac1T\big(\Phi F'u + u'F\Phi' + u'u\big)}_{B},
+  \]
+  with $\Phi = [\phi_1|\dots|\phi_N]'$ the $N\times k$ loading matrix.
+  
+  By A1--A2, $A$ has $k$ eigenvalues growing at rate $N$ (the other $N{-}k$ are zero);
+  by A3--A4, $\lambda_{\max}(B)=o(N)$. Weyl's inequality
+  $\lambda_j(A+B)\le \lambda_j(A)+\lambda_{\max}(B)$ then gives
+  \[
+    \lambda_j(\hat\Sigma_X)\;\ge\; c_0\,N \quad (1\le j\le k),
+    \qquad
+   \lambda_j(\hat\Sigma_X)\;\le\; c_1\,\tfrac{N}{\sqrt{T}} \quad (j> k).
+  \]
+  The widening gap is what the information criteria (and PCA) exploit to recover
+  the $k$ factors.
+\end{frame}
 \subsection{Data Exploration}
 
 \begin{frame}{Assumptions Are Satisfied?}
@@ -220,13 +226,11 @@
         \item \textbf{Estimation:} Common factors $\hat{F}_t$ are estimated via Principal Component Analysis (PCA) on the full sample of log-returns.
         \item \textbf{Dimension Reduction:} $\hat{F}_t$ corresponds to the $\hat{k}$ largest eigenvalues of the sample covariance matrix $\hat{\Sigma}_X$.
     \end{itemize}
-
     \textbf{Limitations:}
     \begin{itemize}
         \item Factors lack direct interpretability.
         \item Difficulty in assessing the model's predictive accuracy.
     \end{itemize}
-
     \begin{block}{Transition to Stock \& Watson (2002)}
         To evaluate the "goodness of fit," we adopt the \textbf{Stock and Watson methodology}, which enables real-time simulation and benchmarking.
     \end{block}
@@ -241,7 +245,7 @@
         \begin{enumerate}
             \item Factors $\hat{F}_t$ are extracted via PCA from the training window.
             \item A linear model is estimated via OLS for each asset using $\hat{F}_t$
-            \item A 1-step ahead forecast is generated and stored: $\hat{y}_{i,t+1} = \hat{\beta}_i \hat{F}_t$.
+            \item A 1-step ahead forecast is generated and stored: $\hat{y}_{i,t+1} = \hat{\beta}'_i \hat{F}_t$.
             \item The training window expands to include the observation at $t$.
         \end{enumerate}
         \item \textbf{Benchmarking:} An \textbf{AR($p$)} model is estimated at each step:
@@ -288,7 +292,7 @@
         \begin{equation*}
             \textcolor{red}{\hat{k} = 3 = k_{\max}}.
         \end{equation*}
-       It \emph{seems} the approximate-factor condition is violated here, i.e.\ $\lambda_{\max}(\Sigma_u)$ appears \textbf{unbounded}.
+       It \emph{seems} that A3--A4 are violated , i.e.\ $\lambda_{\max}(B)$ may grow at rate $N$ aswell.
        %\item \textbf{Interpretation:} for the majority of the sample, the best predictor is simply the \textbf{historical sample mean}.%
     \end{itemize}
 \end{frame}
@@ -297,7 +301,7 @@
     To determine if the previous results were due to the small cross-section ($N=5$), we expanded the dataset using the \textbf{\texttt{crypto2}} package:
     
     \begin{itemize}
-        \item We cleaned the data inspired by the methodology of \textbf{Bianchi and Babiak (2022)} to ensure a high-quality data pool.
+        \item We cleaned the data inspired by the methodology of \textbf{Bianchi and Babiak (2021)} to ensure a high-quality data pool.
         \item We increased the number of assets $(N = 29)$ to test if a larger dataset would improve the prediction accuracy.
         \item \textbf{Findings:} 
         \begin{itemize}
@@ -328,7 +332,7 @@
         
         \item \textbf{Empirical Results:}
         \begin{itemize}
-            \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating the absence of evidence about a common factor structure.
+            \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating no evidence of a common factor structure.
             \item \textbf{Expanded Dataset ($N=29$):} We reject $H_0$ for the second largest eigenvalues ($\hat{k}=1$).
         \end{itemize}
     \end{itemize}
