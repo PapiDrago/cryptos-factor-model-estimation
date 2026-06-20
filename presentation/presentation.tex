@@ -315,7 +315,7 @@
     \end{block}
     \end{frame}
     
-    \begin{frame}{Testing for Factor Strength: The Trapani (2018) Test}
+   \begin{frame}{Testing for Factor Strength: The Trapani (2018) Test}
     To determine if the factors are "strong" or merely noise, we test the behavior of the eigenvalues $\lambda^{(p)}$ for $p=1, \dots, \hat{k}$ as $N \to \infty$:
     
     \begin{itemize}
@@ -325,19 +325,20 @@
             \item $H_A: \lambda^{(p)} = O(1)$ (Bounded eigenvalue; noise).
         \end{itemize}
         
-        \item \textbf{Test Statistic:} Trapani constructs a statistic $\Theta^{(p)}$ that, under $H_0$, follows a \textbf{chi-squared distribution}:
+        \item \textbf{Test Statistic:} Trapani constructs a \textbf{randomized} statistic $\Theta^{(p)}$ that, under $H_0$, follows a chi-squared distribution:
         \begin{equation*}
             \Theta^{(p)} \sim \chi^2(1)
         \end{equation*}
         
+        \item \textbf{Decision ($\alpha = 0.01$):} reject $H_0$ when
+              $\Theta^{(p)} > \chi^2_{1;\,0.99} \approx 6.63$        
         \item \textbf{Empirical Results:}
         \begin{itemize}
             \item \textbf{Small Dataset ($N=5$):} We reject $H_0$ for the largest eigenvalue ($p=1$). Consequently, $\hat{k}=0$, indicating no evidence of a common factor structure.
-            \item \textbf{Expanded Dataset ($N=29$):} We reject $H_0$ for the second largest eigenvalues ($\hat{k}=1$).
+            \item \textbf{Expanded Dataset ($N=29$):} We reject $H_0$ for the second largest eigenvalue ($\hat{k}=1$).
         \end{itemize}
     \end{itemize}
 \end{frame}    
-    
 \begin{frame}{Conclusions}
     This work evaluated the presence and predictive utility of common factors in the cryptocurrency market using the \textbf{Stock \& Watson (2002)} framework and \textbf{Trapani (2018)} test.
     
