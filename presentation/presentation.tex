@@ -224,7 +224,6 @@
 \begin{frame}{Initial Approach: Static Factor Estimation}
     \begin{itemize}
         \item \textbf{Estimation:} Common factors $\hat{F}_t$ are estimated via Principal Component Analysis (PCA) on the full sample of log-returns.
-        \item \textbf{Dimension Reduction:} $\hat{F}_t$ corresponds to the $\hat{k}$ largest eigenvalues of the sample covariance matrix $\hat{\Sigma}_X$.
     \end{itemize}
     \textbf{Limitations:}
     \begin{itemize}
@@ -254,24 +253,6 @@
         \end{equation*}
         where $p$ is selected dynamically via \textbf{BIC}.
         \item \textbf{Evaluation:} Model utility is determined by comparing the \textbf{Mean Squared Error (MSE)} of the Factor Model against the AR benchmark.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Theoretical Consistency and Identifiability}
-    The framework provides mathematical assurance regarding the consistent estimation of common factors:
-    \vspace{-0.25cm}
-    \begin{itemize}
-        \item \textbf{Consistency up to Rotation:} PCA consistently estimates $H F_t$ rather than $F_t$, where $H$ is a non-singular $k \times k$ rotation matrix. The R implementation utilizes the \texttt{PCA} function from the \textbf{\texttt{HDRFA}} package.
-        
-        \item \textbf{Simplification to Sign Uncertainty:} Stock and Watson (2002) show that under our assumptions and distinct eigenvalues, the rotation $H$ simplifies to a sign-switching matrix $S$. 
-        \begin{itemize}
-            \item Factors are essentially identified up to a \textbf{change of sign} ($\pm \hat{F}_t$).
-        \end{itemize}
-        
-        \item \textbf{Resolution via OLS:} This sign misalignment is automatically compensated for by the estimated OLS parameters in the linear regression model:
-        \begin{equation*}
-            \hat{y}_{i,t+1} = \hat{\beta}_i' \hat{F}_t
-        \end{equation*}
     \end{itemize}
 \end{frame}
 
@@ -347,17 +328,6 @@
         \item \textbf{Identification Sensitivity:} The \textbf{Trapani (2018)} test reveals that factor identification is highly dependent on the cross-sectional dimension ($N$).
         \item \textbf{Sample-Size Dependency:} No consistent factor structure was identifiable for $N=5$ ($\hat{k}=0$), whereas a statistically diverging signal begins to emerge for $N=29$ ($\hat{k}=1$). 
         \end{itemize}
-\end{frame}
-
-\begin{frame}{Future Work}
-    The findings of this research open several avenues for extending the analysis of cryptocurrency co-movements and predictive modeling:
-    
-    \begin{itemize}
-    
-    	 \item \textbf{Time-Varying Loadings:} Implementing \textbf{Dynamic Factor Models} where factor loadings $\phi_{i,t}$ can evolve, accounting for the rapidly changing nature of the cryptocurrency market.
-
-        \item \textbf{Non-Linear Factor Models:} Investigating \textbf{Machine Learning} architectures (e.g., Autoencoders or Recurrent Neural Networks) to capture non-linear dependencies that PCA-based linear models may miss.
-    \end{itemize}
 \end{frame}
     
 \section*{References}
